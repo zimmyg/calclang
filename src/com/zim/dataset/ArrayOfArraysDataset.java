@@ -1,4 +1,4 @@
-package com.zim.Dataset;
+package com.zim.dataset;
 
 import com.zim.util.ArrayIterator;
 import com.zim.util.ArrayStrideIterator;
@@ -6,7 +6,6 @@ import com.zim.util.ArrayStrideIterator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 public class ArrayOfArraysDataset extends Dataset {
     private Object[][] data;

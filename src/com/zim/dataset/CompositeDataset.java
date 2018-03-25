@@ -1,8 +1,8 @@
-package com.zim.Dataset;
+package com.zim.dataset;
 
 import java.util.*;
 
-import static com.zim.Dataset.Dataset.DataOrder.ROW;
+import static com.zim.dataset.Dataset.DataOrder.ROW;
 
 /**
  * This class defines a composite data set which is made op from one or more parallel data sets.

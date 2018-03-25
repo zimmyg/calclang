@@ -1,11 +1,9 @@
 package com.zim;
 
-import com.zim.Dataset.Dataset;
-import com.zim.Dataset.DatasetFactory;
+import com.zim.dataset.Dataset;
+import com.zim.dataset.DatasetFactory;
 import com.zim.antlr.grammar.calcfield.functions.inmemory.*;
 
-import com.zim.antlr.grammar.calcfield.generated.CalcFieldLexer;
-import com.zim.antlr.grammar.calcfield.generated.CalcFieldParser;
 import com.zim.antlr.grammar.calcfield.parsedexpression.Expression;
 import com.zim.antlr.grammar.calcfield.context.CalcFieldContext;
 import com.zim.antlr.grammar.calcfield.context.CalcFieldInputField;
@@ -14,9 +12,6 @@ import com.zim.antlr.grammar.calcfield.context.FieldDataType;
 import com.zim.antlr.grammar.calcfield.context.InMemoryContext;
 import com.zim.antlr.grammar.calcfield.processor.CalcFieldExpressionBuilder;
 import com.zim.antlr.grammar.calcfield.processor.inmemory.InMemoryCalcFieldProcessor;
-
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.util.*;
 

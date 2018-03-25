@@ -1,8 +1,8 @@
 package com.zim.antlr.grammar.calcfield.processor.inmemory;
 
 import com.zim.antlr.grammar.calcfield.context.CalcFieldInputField;
-import com.zim.Dataset.Dataset;
-import com.zim.Dataset.DatasetFactory;
+import com.zim.dataset.Dataset;
+import com.zim.dataset.DatasetFactory;
 import com.zim.antlr.grammar.calcfield.context.FieldDataType;
 import com.zim.antlr.grammar.calcfield.functions.inmemory.InMemoryCalcFunction;
 import com.zim.antlr.grammar.calcfield.parsedexpression.*;

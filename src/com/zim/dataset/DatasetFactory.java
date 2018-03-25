@@ -1,4 +1,4 @@
-package com.zim.Dataset;
+package com.zim.dataset;
 
 import java.util.Collection;
 import java.util.LinkedList;

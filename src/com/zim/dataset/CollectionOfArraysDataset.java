@@ -1,4 +1,4 @@
-package com.zim.Dataset;
+package com.zim.dataset;
 
 import com.zim.util.ArrayIterator;
 import com.zim.util.CollectionOfArraysStrideIterator;
