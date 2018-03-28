@@ -1,11 +1,11 @@
-package com.zim.antlr.grammar.calcfield.processor.inmemory;
+package com.zim.calc.inmemory;
 
-import com.zim.antlr.grammar.calcfield.context.CalcFieldInputField;
+import com.zim.calc.context.CalcFieldInputField;
+import com.zim.calc.context.FieldDataType;
+import com.zim.calc.expression.*;
+import com.zim.calc.inmemory.function.InMemoryCalcFunction;
 import com.zim.dataset.Dataset;
 import com.zim.dataset.DatasetFactory;
-import com.zim.antlr.grammar.calcfield.context.FieldDataType;
-import com.zim.antlr.grammar.calcfield.functions.inmemory.InMemoryCalcFunction;
-import com.zim.antlr.grammar.calcfield.parsedexpression.*;
 
 import java.math.BigDecimal;
 import java.util.*;

@@ -1,6 +1,6 @@
-package com.zim.antlr.grammar.calcfield.functions.inmemory;
+package com.zim.calc.inmemory.function;
 
-import com.zim.antlr.grammar.calcfield.context.FieldDataType;
+import com.zim.calc.context.FieldDataType;
 import com.zim.util.LRUCache;
 
 import java.text.SimpleDateFormat;

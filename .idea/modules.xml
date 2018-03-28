@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/calclang.iml" filepath="$PROJECT_DIR$/calclang.iml" />
+      <module fileurl="file://$PROJECT_DIR$/calclang/calclang.iml" filepath="$PROJECT_DIR$/calclang/calclang.iml" />
+      <module fileurl="file://$PROJECT_DIR$/calclang_impl/calclang_impl.iml" filepath="$PROJECT_DIR$/calclang_impl/calclang_impl.iml" />
     </modules>
   </component>
 </project>

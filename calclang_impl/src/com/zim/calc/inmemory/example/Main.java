@@ -1,17 +1,16 @@
-package com.zim;
+package com.zim.calc.inmemory.example;
 
+import com.zim.calc.context.CalcFieldContext;
+import com.zim.calc.context.CalcFieldInputField;
+import com.zim.calc.context.CalculationFunction;
+import com.zim.calc.context.FieldDataType;
+import com.zim.calc.expression.Expression;
+import com.zim.calc.inmemory.ExpressionBuilder;
+import com.zim.calc.inmemory.InMemoryContext;
+import com.zim.calc.inmemory.InMemoryCalcFieldProcessor;
+import com.zim.calc.inmemory.function.*;
 import com.zim.dataset.Dataset;
 import com.zim.dataset.DatasetFactory;
-import com.zim.antlr.grammar.calcfield.functions.inmemory.*;
-
-import com.zim.antlr.grammar.calcfield.parsedexpression.Expression;
-import com.zim.antlr.grammar.calcfield.context.CalcFieldContext;
-import com.zim.antlr.grammar.calcfield.context.CalcFieldInputField;
-import com.zim.antlr.grammar.calcfield.functions.CalculationFunction;
-import com.zim.antlr.grammar.calcfield.context.FieldDataType;
-import com.zim.antlr.grammar.calcfield.context.InMemoryContext;
-import com.zim.antlr.grammar.calcfield.processor.CalcFieldExpressionBuilder;
-import com.zim.antlr.grammar.calcfield.processor.inmemory.InMemoryCalcFieldProcessor;
 
 import java.util.*;
 
@@ -132,7 +131,7 @@ public class Main {
 
 
         CalcFieldContext ctx = new InMemoryContext(testFunctions, testFields);
-        CalcFieldExpressionBuilder builder = new CalcFieldExpressionBuilder(ctx);
+        ExpressionBuilder builder = new ExpressionBuilder(ctx);
 
         long parseStart = System.currentTimeMillis();
 

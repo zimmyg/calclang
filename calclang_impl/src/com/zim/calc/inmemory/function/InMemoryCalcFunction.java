@@ -1,6 +1,6 @@
-package com.zim.antlr.grammar.calcfield.functions.inmemory;
+package com.zim.calc.inmemory.function;
 
-import com.zim.antlr.grammar.calcfield.functions.CalculationFunction;
+import com.zim.calc.context.CalculationFunction;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
