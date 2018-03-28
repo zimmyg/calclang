@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="calclang:jar">
+    <output-path>$PROJECT_DIR$/calclang/out/artifacts/calclang_jar</output-path>
+    <root id="archive" name="calclang.jar">
+      <element id="module-output" name="calclang" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/calclang/res/lib/antlr-4.7-intellij-1.8.4-version-complete.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
