@@ -1,21 +1,18 @@
 package com.zim.calc.expression;
 
-import com.zim.calc.context.FieldDataType;
-import com.zim.calc.context.CalcFieldInputField;
-import com.zim.calc.context.CalculationFunction;
 import com.zim.calc.antlr.generated.CalcFieldBaseVisitor;
 import com.zim.calc.antlr.generated.CalcFieldLexer;
 import com.zim.calc.antlr.generated.CalcFieldParser;
-import com.zim.calc.context.CalcFieldContext;
-import com.zim.calc.expression.*;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
+import com.zim.calc.context.*;
+import com.zim.util.Const;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public abstract class CalcFieldExpressionBuilder  {
 
@@ -35,8 +32,14 @@ public abstract class CalcFieldExpressionBuilder  {
 
     private Expression parseExpressionFromAntlrStream(CharStream antlrStream) throws Exception {
         CalcFieldLexer lexer = new CalcFieldLexer(antlrStream);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(new ThrowErrorHandler());
+
         CommonTokenStream tokens = new CommonTokenStream(lexer);
+
         CalcFieldParser parser = new CalcFieldParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(new ThrowErrorHandler());
 
         CalcFieldParser.ExpressionContext expression = parser.expression();
         CalcFieldExpressionVisitor exprVisitor = new CalcFieldExpressionVisitor();
@@ -48,11 +51,10 @@ public abstract class CalcFieldExpressionBuilder  {
         return result;
     }
 
-    protected abstract FieldDataType validateExpression(BinaryOpExpression parsedExpression) throws Exception;
-    protected abstract FieldDataType validateExpression(CaseExpression expr) throws Exception;
-    protected abstract FieldDataType validateExpression(FunctionExpression expr) throws Exception;
-    protected abstract FieldDataType validateExpression(ListExpression expr) throws Exception;
-    protected abstract FieldDataType validateExpression(UnaryOpExpression expr) throws Exception;
+    protected abstract FieldDataType validateExpression(BinaryOpExpression parsedExpression) throws CalcException;
+    protected abstract FieldDataType validateExpression(CaseExpression expr) throws CalcException;
+    protected abstract FieldDataType validateExpression(ListExpression expr) throws CalcException;
+    protected abstract FieldDataType validateExpression(UnaryOpExpression expr) throws CalcException;
 
     // helper methods
 
@@ -66,39 +68,59 @@ public abstract class CalcFieldExpressionBuilder  {
                 (lhsType == FieldDataType.NUMERIC && rhsType == FieldDataType.STRING));
     }
 
-    protected Exception getDataTypesMismatchException(FieldDataType... mismatchedTypes) {
+    private String serializeDataTypesArray(FieldDataType[] types) {
         StringBuilder sb = new StringBuilder();
         sb.append("(");
-        if (mismatchedTypes != null) {
-            for (FieldDataType dt: mismatchedTypes) {
-                sb.append(dt.toString()).append(", ");
+        if (types != null) {
+            boolean first = true;
+            for (FieldDataType dt: types) {
+                if (!first) sb.append(", ");
+                first = false;
+                sb.append(dt.toString());
             }
         }
-        String mismatches = sb.toString();
+        return sb.append(")").toString();
+    }
 
-        // remove trailing comma
-        int trailingComma = mismatches.lastIndexOf(",");
-        if (trailingComma >= 0) {
-            mismatches = mismatches.substring(0, trailingComma);
+    protected CalcException getNoOverloadException(String funcName, FieldDataType[] gotTypes) {
+        String gotTypesStr = serializeDataTypesArray(gotTypes);
+        return new CalcException(Const.NO_OVERLOADS_MSG, new Object[] { funcName, gotTypesStr });
+    }
+
+    protected CalcException getDataTypesMismatchException(FieldDataType[] wanted, FieldDataType[] got) {
+        String wantedStr = serializeDataTypesArray(wanted);
+        String gotStr = serializeDataTypesArray(got);
+        Object[] messageParams = new Object[] { wantedStr, gotStr };
+
+        return new CalcException(Const.DATA_TYPE_MISMATCH_MSG, messageParams);
+    }
+
+    // have to define our own error handler which throws the errors as exceptions.
+    // The default implementation just prints the error and continues, where we want it to throw and cancel.
+    private class ThrowErrorHandler extends BaseErrorListener {
+        // TODO: For better error messages, we should override the more-specific versions of this in order to get more
+        // TODO: context about what the error was and provide localisable error keys for them.
+        @Override
+        public void syntaxError (Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
+                                 String msg, RecognitionException e) throws ParseCancellationException {
+            Object[] messageParams = new Object[] { line, charPositionInLine, msg };
+            CalcException cause = new CalcException(Const.SYNTAX_ERROR_MSG, messageParams, e);
+
+            throw new ParseCancellationException("Error in line " + line + ":" + charPositionInLine + " " + msg, cause);
         }
-
-        // close paren
-        mismatches += ")";
-
-        return new Exception("Data types do not match! " + mismatches);
     }
 
     // Using an inner class, because I don't want to expose the API for the ANTLR expression visitor, since it works
     // with the ANTLR generated expressions, and I don't want the overlap in expression terminology to confuse users
     // between the expressions that this class produces versus the ones it operates on.
     private class CalcFieldExpressionVisitor extends CalcFieldBaseVisitor<Expression> {
-        private Exception ex;
+        private CalcException ex;
 
         /**
          * If there was an error while visiting, we can't throw exceptions because the base class does not allow us to.
          * To check if parsing failed, check the exception.
          */
-        public Exception getException () {
+        CalcException getException () {
             return ex;
         }
 
@@ -155,7 +177,7 @@ public abstract class CalcFieldExpressionBuilder  {
 
             try {
                 expr.setResultType(validateExpression(expr));
-            } catch (Exception e) {
+            } catch (CalcException e) {
                 this.ex = e;
                 return null; // break out of parsing, something went wrong
             }
@@ -189,7 +211,7 @@ public abstract class CalcFieldExpressionBuilder  {
 
             try {
                 expr.setResultType(validateExpression(expr));
-            } catch (Exception e) {
+            } catch (CalcException e) {
                 this.ex = e;
                 return null;
             }
@@ -227,7 +249,7 @@ public abstract class CalcFieldExpressionBuilder  {
             } else if ((node = ctx.IDENTIFIER()) != null) {
                 CalcFieldInputField field = calcContext.getFieldForId(node.getText());
                 if (field == null) {
-                    this.ex = new Exception("Field not found: " + node.getText());
+                    this.ex = new CalcException(Const.INVALID_IDENT_MSG, new Object[] { node.getText() });
                     return null;
                 }
 
@@ -247,7 +269,7 @@ public abstract class CalcFieldExpressionBuilder  {
             TerminalNode funcNameNode = ctx.IDENTIFIER();
             CalculationFunction func = calcContext.getFunctionForId(funcNameNode.getText());
             if (func == null) {
-                this.ex = new Exception("Function not found: " + funcNameNode.getText());
+                this.ex = new CalcException(Const.INVALID_IDENT_MSG, new Object[] { funcNameNode.getText() });
                 return null;
             }
 
@@ -259,25 +281,49 @@ public abstract class CalcFieldExpressionBuilder  {
                 evaluatedParams.add(parsedSub);
             }
 
-            List<FieldDataType> argTypes = func.getFunctionArguments();
-            int argLength = argTypes != null ? argTypes.size() : 0;
-            if (evaluatedParams.size() != argLength) {
-                this.ex = new Exception("Function argument count incorrect");
+            FieldDataType[] inputTypes =  new FieldDataType[evaluatedParams.size()];
+            for (int i = 0; i < inputTypes.length; i++) {
+                inputTypes[i] = evaluatedParams.get(i).getResultType();
+            }
+
+            FunctionSignature[] signatures = func.getSignatures();
+            int activeSigIndex = -1;
+            for (int i = 0; i < signatures.length; i++) {
+                FunctionSignature sig = signatures[i];
+                FieldDataType[] argTypes = sig.argumentTypes;
+                if (evaluatedParams.size() == argTypes.length &&
+                        argTypesMatch(argTypes, inputTypes)) {
+                    // function signature matches, use this one
+                    activeSigIndex = i;
+                    break;
+                }
+            }
+
+            if (activeSigIndex < 0) {
+                this.ex = getNoOverloadException(func.getFunctionName(), inputTypes);
                 return null;
             }
 
             FunctionExpression expr = new FunctionExpression();
             expr.setFunction(func);
             expr.setArgumentExpressions(evaluatedParams);
-
-            try {
-                expr.setResultType(validateExpression(expr));
-            } catch (Exception e) {
-                this.ex = e;
-                return null;
-            }
+            expr.setSignatureIndex(activeSigIndex);
 
             return expr;
+        }
+
+        private boolean argTypesMatch(FieldDataType[] expectedTypes, FieldDataType[] inputTypes) {
+            if (expectedTypes.length != inputTypes.length) {
+                return false;
+            }
+
+            for (int i = 0; i < expectedTypes.length; i++) {
+                FieldDataType expected = expectedTypes[i];
+                FieldDataType actual = inputTypes[i];
+                if (expected != actual) return false;
+            }
+
+            return true;
         }
 
         @Override
@@ -308,7 +354,7 @@ public abstract class CalcFieldExpressionBuilder  {
 
             try {
                 expr.setResultType(validateExpression(expr));
-            } catch (Exception e) {
+            } catch (CalcException e) {
                 this.ex = e;
                 return null;
             }
@@ -351,7 +397,7 @@ public abstract class CalcFieldExpressionBuilder  {
 
             try {
                 expr.setResultType(validateExpression(expr));
-            } catch (Exception e) {
+            } catch (CalcException e) {
                 this.ex = e;
                 return null;
             }
@@ -382,7 +428,7 @@ public abstract class CalcFieldExpressionBuilder  {
 
             try {
                 expr.setResultType(validateExpression(expr));
-            } catch (Exception e) {
+            } catch (CalcException e) {
                 this.ex = e;
                 return null;
             }
@@ -402,7 +448,7 @@ public abstract class CalcFieldExpressionBuilder  {
 
             try {
                 expr.setResultType(validateExpression(expr));
-            } catch (Exception e) {
+            } catch (CalcException e) {
                 this.ex = e;
                 return null;
             }
@@ -432,7 +478,7 @@ public abstract class CalcFieldExpressionBuilder  {
 
             try {
                 expr.setResultType(validateExpression(expr));
-            } catch (Exception e) {
+            } catch (CalcException e) {
                 this.ex = e;
                 return null;
             }
@@ -452,7 +498,7 @@ public abstract class CalcFieldExpressionBuilder  {
 
             try {
                 expr.setResultType(validateExpression(expr));
-            } catch (Exception e) {
+            } catch (CalcException e) {
                 this.ex = e;
                 return null;
             }

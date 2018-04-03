@@ -24,7 +24,7 @@ public class ListExpression extends Expression {
     }
 
     @Override
-    public FieldDataType getResultType() throws Exception {
+    public FieldDataType getResultType() {
         return resultType;
     }
 

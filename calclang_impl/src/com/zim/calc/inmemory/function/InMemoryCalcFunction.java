@@ -1,6 +1,8 @@
 package com.zim.calc.inmemory.function;
 
+import com.zim.calc.context.CalcException;
 import com.zim.calc.context.CalculationFunction;
+import com.zim.calc.context.FunctionSignature;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -23,7 +25,7 @@ public abstract class InMemoryCalcFunction implements CalculationFunction {
      *
      * @param argData full data for each function argument
      */
-    public abstract List<Object> evaluate(List<List<Object>> argData) throws Exception;
+    public abstract List<Object> evaluate(List<List<Object>> argData, FunctionSignature sig) throws CalcException;
 
     protected BigDecimal getBD(Object o) {
         BigDecimal result = null;

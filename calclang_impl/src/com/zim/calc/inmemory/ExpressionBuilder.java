@@ -1,11 +1,11 @@
 package com.zim.calc.inmemory;
 
+import com.zim.calc.context.CalcException;
 import com.zim.calc.context.CalcFieldContext;
 import com.zim.calc.context.FieldDataType;
 import com.zim.calc.expression.*;
 
 import java.util.Iterator;
-import java.util.List;
 
 public class ExpressionBuilder extends CalcFieldExpressionBuilder {
     public ExpressionBuilder (CalcFieldContext context) {
@@ -13,7 +13,7 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
     }
 
     @Override
-    protected FieldDataType validateExpression (BinaryOpExpression parsedExpression) throws Exception {
+    protected FieldDataType validateExpression (BinaryOpExpression parsedExpression) throws CalcException {
         FieldDataType lhsType = parsedExpression.getLhs().getResultType();
         FieldDataType rhsType = parsedExpression.getRhs().getResultType();
 
@@ -26,7 +26,9 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
             case SUB: {
                 // these all require both sides to be numeric
                 if (lhsType != FieldDataType.NUMERIC || rhsType != FieldDataType.NUMERIC) {
-                    throw getDataTypesMismatchException(lhsType, rhsType);
+                    throw getDataTypesMismatchException(
+                            new FieldDataType[] { FieldDataType.NUMERIC, FieldDataType.NUMERIC }, // wanted
+                            new FieldDataType[] { lhsType, rhsType }); // got
                 }
 
                 resultType = FieldDataType.NUMERIC;
@@ -40,7 +42,7 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
                 } else if (isStringConcatenationAndAllowed(lhsType, rhsType)) {
                     resultType = FieldDataType.STRING;
                 } else {
-                    throw getDataTypesMismatchException(lhsType, rhsType);
+                    throw getNoOverloadException("OPERATOR ADD", new FieldDataType[] { lhsType, rhsType });
                 }
 
                 break;
@@ -51,7 +53,9 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
             case OR: {
                 // arguments must be boolean expressions
                 if (lhsType != FieldDataType.BOOLEAN || rhsType != FieldDataType.BOOLEAN) {
-                    throw getDataTypesMismatchException(lhsType, rhsType);
+                    throw getDataTypesMismatchException(
+                            new FieldDataType[] { FieldDataType.BOOLEAN, FieldDataType.BOOLEAN }, // wanted
+                            new FieldDataType[] { lhsType, rhsType }); // got
                 }
 
                 resultType = FieldDataType.BOOLEAN;
@@ -64,7 +68,9 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
             case LE:
             case GE: {
                 if (lhsType != FieldDataType.NUMERIC || rhsType != FieldDataType.NUMERIC) {
-                    throw getDataTypesMismatchException(lhsType, rhsType);
+                    throw getDataTypesMismatchException(
+                            new FieldDataType[] { FieldDataType.BOOLEAN, FieldDataType.BOOLEAN }, // wanted
+                            new FieldDataType[] { lhsType, rhsType }); // got
                 }
 
                 resultType = FieldDataType.NUMERIC;
@@ -77,7 +83,9 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
             case INLIST:
             case NOTINLIST: {
                 if (lhsType != rhsType) {
-                    throw getDataTypesMismatchException(lhsType, rhsType);
+                    throw getDataTypesMismatchException(
+                            new FieldDataType[] { lhsType }, // wanted
+                            new FieldDataType[] { rhsType }); // got
                 }
 
                 resultType = FieldDataType.BOOLEAN;
@@ -89,27 +97,27 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
     }
 
     @Override
-    protected FieldDataType validateExpression (CaseExpression expr) throws Exception {
+    protected FieldDataType validateExpression (CaseExpression expr) throws CalcException {
         FieldDataType thenTypeAgg = null;
         Iterator<Expression> thenIt = expr.getThenExpressions().iterator();
         for (Expression when : expr.getWhenExpressions()) {
             FieldDataType whenType = when.getResultType();
             if (whenType != FieldDataType.BOOLEAN) {
-                throw new Exception("WHEN clause must have boolean result!");
+                throw new CalcException("WHEN clause must have boolean result!");
             }
 
             FieldDataType thenType = thenIt.next().getResultType();
             if (thenTypeAgg == null) {
                 thenTypeAgg = thenType;
             } else if (thenTypeAgg != thenType) {
-                throw new Exception("All CASE expression branches must produce the same data type result!");
+                throw new CalcException("All CASE expression branches must produce the same data type result!");
             }
         }
 
         if (expr.getElseExpression() != null) {
             FieldDataType elseType = expr.getElseExpression().getResultType();
             if (elseType != thenTypeAgg) {
-                throw new Exception("All CASE expression branches must produce the same data type result!");
+                throw new CalcException("All CASE expression branches must produce the same data type result!");
             }
         }
 
@@ -117,24 +125,9 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
     }
 
     @Override
-    protected FieldDataType validateExpression (FunctionExpression expr) throws Exception {
-        List<FieldDataType> expectedArgTypes = expr.getFunction().getFunctionArguments();
-        Iterator<Expression> argIt = expr.getArgumentExpressions().iterator();
-        for (FieldDataType expectedType : expectedArgTypes) {
-            Expression argExp = argIt.next();
-            FieldDataType actualType = argExp.getResultType();
-            if (expectedType != actualType) {
-                throw getDataTypesMismatchException(expectedType, actualType);
-            }
-        }
-
-        return expr.getFunction().getReturnType();
-    }
-
-    @Override
-    protected FieldDataType validateExpression (ListExpression expr) throws Exception {
+    protected FieldDataType validateExpression (ListExpression expr) throws CalcException {
         if (expr.getListExpressions() == null || expr.getListExpressions().isEmpty()) {
-            throw new Exception("INLIST cannot be empty!");
+            throw new CalcException("INLIST cannot be empty!");
         }
 
         FieldDataType aggType = null;
@@ -145,11 +138,11 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
             }
 
             if (aggType == null) {
-                throw new Exception("Return type cannot be null!");
+                throw new CalcException("Return type cannot be null!");
             }
 
             if (aggType != exprType) {
-                throw getDataTypesMismatchException(aggType, exprType);
+                throw getDataTypesMismatchException(new FieldDataType[] { aggType } , new FieldDataType[] { exprType });
             }
         }
 
@@ -157,7 +150,7 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
     }
 
     @Override
-    protected FieldDataType validateExpression (UnaryOpExpression expr) throws Exception {
+    protected FieldDataType validateExpression (UnaryOpExpression expr) throws CalcException {
         FieldDataType operandType = expr.getOperand().getResultType();
 
         FieldDataType resultType = null;
@@ -166,7 +159,7 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
             case ADD:
             case SUB: {
                 if (operandType != FieldDataType.NUMERIC) {
-                    throw getDataTypesMismatchException(FieldDataType.NUMERIC, operandType);
+                    throw getDataTypesMismatchException(new FieldDataType[] { FieldDataType.NUMERIC }, new FieldDataType[] { operandType });
                 }
 
                 resultType = FieldDataType.NUMERIC;
@@ -176,7 +169,7 @@ public class ExpressionBuilder extends CalcFieldExpressionBuilder {
             // boolean not operator
             case BANG: {
                 if (operandType != FieldDataType.BOOLEAN) {
-                    throw getDataTypesMismatchException(FieldDataType.BOOLEAN, operandType);
+                    throw getDataTypesMismatchException(new FieldDataType[] { FieldDataType.BOOLEAN }, new FieldDataType[] { operandType });
                 }
 
                 resultType = FieldDataType.BOOLEAN;

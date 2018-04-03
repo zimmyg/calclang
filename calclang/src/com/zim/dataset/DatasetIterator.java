@@ -40,4 +40,9 @@ public class DatasetIterator implements Iterator<Object[]> {
 
         return currentRow;
     }
+
+    @Override
+    public void remove () {
+        throw new UnsupportedOperationException("Not implemented!");
+    }
 }

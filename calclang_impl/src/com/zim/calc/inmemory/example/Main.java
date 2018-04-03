@@ -12,6 +12,7 @@ import com.zim.calc.inmemory.function.*;
 import com.zim.dataset.Dataset;
 import com.zim.dataset.DatasetFactory;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 public class Main {
@@ -24,6 +25,7 @@ public class Main {
         testDataSetColTypes.add(FieldDataType.NUMERIC);
         testDataSetColTypes.add(FieldDataType.BOOLEAN);
         testDataSetColTypes.add(FieldDataType.DATE);
+        testDataSetColTypes.add(FieldDataType.TIMESTAMP);
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 1000000; i++) {
@@ -43,6 +45,9 @@ public class Main {
 
             // date data
             dataRow[3] = new Date(i);
+
+            // timestamp data
+            dataRow[4] = new Timestamp(i);
 
             testDataSet.add(dataRow);
         }

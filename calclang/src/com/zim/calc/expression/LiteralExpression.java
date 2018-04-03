@@ -8,7 +8,7 @@ public class LiteralExpression extends Expression {
     Object literalValue = null;
 
     @Override
-    public FieldDataType getResultType() throws Exception {
+    public FieldDataType getResultType() {
         return resultType;
     }
 

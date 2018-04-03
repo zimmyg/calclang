@@ -504,7 +504,7 @@ public class InMemoryCalcFieldProcessor {
             }
         }
 
-        return func.evaluate(argumentData);
+        return func.evaluate(argumentData, expr.getActiveSignature());
     }
 
     private boolean compPassesForRow(Expression comp, Object[] row) throws Exception {

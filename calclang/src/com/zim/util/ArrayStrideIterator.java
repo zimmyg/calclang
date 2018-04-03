@@ -24,4 +24,9 @@ public class ArrayStrideIterator <T> implements Iterator <T> {
     public T next() {
         return arrayOfArrays[current++][dataIndex];
     }
+
+    @Override
+    public void remove () {
+        throw new UnsupportedOperationException("Not implemented!");
+    }
 }

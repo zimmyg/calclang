@@ -21,4 +21,9 @@ public class ArrayIterator <T> implements Iterator <T> {
     public T next() {
         return array[current++];
     }
+
+    @Override
+    public void remove () {
+        throw new UnsupportedOperationException("Not implemented!");
+    }
 }

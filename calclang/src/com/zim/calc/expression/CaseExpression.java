@@ -46,7 +46,7 @@ public class CaseExpression extends Expression {
     }
 
     @Override
-    public FieldDataType getResultType() throws Exception {
+    public FieldDataType getResultType() {
         return resultType;
     }
 

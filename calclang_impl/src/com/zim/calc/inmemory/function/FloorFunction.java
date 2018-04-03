@@ -1,6 +1,9 @@
 package com.zim.calc.inmemory.function;
 
+import com.zim.calc.context.CalcException;
 import com.zim.calc.context.FieldDataType;
+import com.zim.calc.context.FunctionSignature;
+import com.zim.util.Const;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -9,9 +12,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FloorFunction extends InMemoryCalcFunction {
+    private static final FunctionSignature[] signatures = new FunctionSignature[] {
+            new FunctionSignature(new FieldDataType[] { FieldDataType.NUMERIC }, FieldDataType.NUMERIC),
+    };
+
     @Override
-    public FieldDataType getReturnType() {
-        return FieldDataType.NUMERIC;
+    public FunctionSignature[] getSignatures () {
+        return signatures;
     }
 
     @Override
@@ -20,12 +27,11 @@ public class FloorFunction extends InMemoryCalcFunction {
     }
 
     @Override
-    public List<FieldDataType> getFunctionArguments() {
-        return Collections.singletonList(FieldDataType.NUMERIC);
-    }
+    public List<Object> evaluate(List<List<Object>> argData, FunctionSignature sig) throws CalcException {
+        if (!signatures[0].equals(sig)) {
+            throw new CalcException("Unknown function signature!");
+        }
 
-    @Override
-    public List<Object> evaluate(List<List<Object>> argData) throws Exception {
         List<Object> result = new LinkedList<>();
 
         List<Object> data = argData.get(0);

@@ -11,4 +11,9 @@ public class CollectionOfArraysStrideIterator <T> extends CollectionStrideIterat
     protected T getNext(T[] innerItem, int dataStride) {
         return innerItem[dataStride];
     }
+
+    @Override
+    public void remove () {
+        throw new UnsupportedOperationException("Not implemented!");
+    }
 }

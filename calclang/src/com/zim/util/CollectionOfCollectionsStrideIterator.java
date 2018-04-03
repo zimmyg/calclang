@@ -21,4 +21,9 @@ public class CollectionOfCollectionsStrideIterator <T> extends CollectionStrideI
 
         return val;
     }
+
+    @Override
+    public void remove () {
+        throw new UnsupportedOperationException("Not implemented!");
+    }
 }

@@ -15,7 +15,7 @@ public class InMemoryContext implements CalcFieldContext {
     private Map<String, CalcFieldInputField> fieldMap = null;
 
     public InMemoryContext() {
-        this(new LinkedList<>(), new LinkedList<>());
+        this(new LinkedList<CalculationFunction>(), new LinkedList<CalcFieldInputField>());
     }
 
     public InMemoryContext(List<CalculationFunction> functions, List<CalcFieldInputField> fields) {
