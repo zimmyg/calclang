@@ -4,7 +4,7 @@ import com.zim.calc.antlr.generated.CalcFieldBaseVisitor;
 import com.zim.calc.antlr.generated.CalcFieldLexer;
 import com.zim.calc.antlr.generated.CalcFieldParser;
 import com.zim.calc.context.*;
-import com.zim.util.Const;
+import com.zim.util.CalcConstants;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -41,7 +41,7 @@ public abstract class CalcFieldExpressionBuilder  {
         parser.removeErrorListeners();
         parser.addErrorListener(new ThrowErrorHandler());
 
-        CalcFieldParser.ExpressionContext expression = parser.expression();
+        CalcFieldParser.CalculationContext expression = parser.calculation();
         CalcFieldExpressionVisitor exprVisitor = new CalcFieldExpressionVisitor();
         Expression result = exprVisitor.visit(expression);
         if (result == null && exprVisitor.getException() != null) {
@@ -84,7 +84,7 @@ public abstract class CalcFieldExpressionBuilder  {
 
     protected CalcException getNoOverloadException(String funcName, FieldDataType[] gotTypes) {
         String gotTypesStr = serializeDataTypesArray(gotTypes);
-        return new CalcException(Const.NO_OVERLOADS_MSG, new Object[] { funcName, gotTypesStr });
+        return new CalcException(CalcConstants.NO_OVERLOADS_MSG, new Object[] { funcName, gotTypesStr });
     }
 
     protected CalcException getDataTypesMismatchException(FieldDataType[] wanted, FieldDataType[] got) {
@@ -92,20 +92,23 @@ public abstract class CalcFieldExpressionBuilder  {
         String gotStr = serializeDataTypesArray(got);
         Object[] messageParams = new Object[] { wantedStr, gotStr };
 
-        return new CalcException(Const.DATA_TYPE_MISMATCH_MSG, messageParams);
+        return new CalcException(CalcConstants.DATA_TYPE_MISMATCH_MSG, messageParams);
+    }
+
+    protected CalcException getSyntaxErrorException(int line, int charPositionInLine, String msg, Exception cause) {
+        Object[] messageParams = new Object[] { line, charPositionInLine, msg };
+        return new CalcException(CalcConstants.SYNTAX_ERROR_MSG, messageParams, cause);
     }
 
     // have to define our own error handler which throws the errors as exceptions.
     // The default implementation just prints the error and continues, where we want it to throw and cancel.
     private class ThrowErrorHandler extends BaseErrorListener {
-        // TODO: For better error messages, we should override the more-specific versions of this in order to get more
-        // TODO: context about what the error was and provide localisable error keys for them.
         @Override
         public void syntaxError (Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
                                  String msg, RecognitionException e) throws ParseCancellationException {
-            Object[] messageParams = new Object[] { line, charPositionInLine, msg };
-            CalcException cause = new CalcException(Const.SYNTAX_ERROR_MSG, messageParams, e);
-
+            // TODO: See if we can use the arguments of this function to inspect the error more closely in order to give
+            // TODO: better error messages, rather than just using the message we're given, which is not localisable.
+            CalcException cause = getSyntaxErrorException(line, charPositionInLine, msg, e);
             throw new ParseCancellationException("Error in line " + line + ":" + charPositionInLine + " " + msg, cause);
         }
     }
@@ -122,6 +125,11 @@ public abstract class CalcFieldExpressionBuilder  {
          */
         CalcException getException () {
             return ex;
+        }
+
+        @Override
+        public Expression visitCalculation (CalcFieldParser.CalculationContext ctx) {
+            return ctx.expression().accept(this);
         }
 
         @Override
@@ -249,7 +257,7 @@ public abstract class CalcFieldExpressionBuilder  {
             } else if ((node = ctx.IDENTIFIER()) != null) {
                 CalcFieldInputField field = calcContext.getFieldForId(node.getText());
                 if (field == null) {
-                    this.ex = new CalcException(Const.INVALID_IDENT_MSG, new Object[] { node.getText() });
+                    this.ex = new CalcException(CalcConstants.INVALID_IDENT_MSG, new Object[] { node.getText() });
                     return null;
                 }
 
@@ -269,7 +277,7 @@ public abstract class CalcFieldExpressionBuilder  {
             TerminalNode funcNameNode = ctx.IDENTIFIER();
             CalculationFunction func = calcContext.getFunctionForId(funcNameNode.getText());
             if (func == null) {
-                this.ex = new CalcException(Const.INVALID_IDENT_MSG, new Object[] { funcNameNode.getText() });
+                this.ex = new CalcException(CalcConstants.INVALID_IDENT_MSG, new Object[] { funcNameNode.getText() });
                 return null;
             }
 

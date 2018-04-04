@@ -1,4 +1,4 @@
-// Generated from C:/Users/Tim/IdeaProjects/ANTLR Test/src/com/zim/antlr/grammar/calcfield\CalcField.g4 by ANTLR 4.7
+// Generated from C:/IJWorkspace/calclang/calclang/src/com/zim/calc/antlr\CalcField.g4 by ANTLR 4.7
 package com.zim.calc.antlr.generated;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -10,6 +10,12 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  * operations with no return type.
  */
 public interface CalcFieldVisitor<T> extends ParseTreeVisitor<T> {
+	/**
+	 * Visit a parse tree produced by {@link CalcFieldParser#calculation}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCalculation(CalcFieldParser.CalculationContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code unaryOpExpr}
 	 * labeled alternative in {@link CalcFieldParser#expression}.

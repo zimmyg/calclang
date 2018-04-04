@@ -1,4 +1,4 @@
-// Generated from C:/Users/Tim/IdeaProjects/ANTLR Test/src/com/zim/antlr/grammar/calcfield\CalcField.g4 by ANTLR 4.7
+// Generated from C:/IJWorkspace/calclang/calclang/src/com/zim/calc/antlr\CalcField.g4 by ANTLR 4.7
 package com.zim.calc.antlr.generated;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -7,6 +7,16 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  * {@link CalcFieldParser}.
  */
 public interface CalcFieldListener extends ParseTreeListener {
+	/**
+	 * Enter a parse tree produced by {@link CalcFieldParser#calculation}.
+	 * @param ctx the parse tree
+	 */
+	void enterCalculation(CalcFieldParser.CalculationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link CalcFieldParser#calculation}.
+	 * @param ctx the parse tree
+	 */
+	void exitCalculation(CalcFieldParser.CalculationContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code unaryOpExpr}
 	 * labeled alternative in {@link CalcFieldParser#expression}.

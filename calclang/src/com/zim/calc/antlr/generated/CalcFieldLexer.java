@@ -1,4 +1,4 @@
-// Generated from C:/Users/Tim/IdeaProjects/ANTLR Test/src/com/zim/antlr/grammar/calcfield\CalcField.g4 by ANTLR 4.7
+// Generated from C:/IJWorkspace/calclang/calclang/src/com/zim/calc/antlr\CalcField.g4 by ANTLR 4.7
 package com.zim.calc.antlr.generated;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

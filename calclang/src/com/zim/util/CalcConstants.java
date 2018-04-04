@@ -1,6 +1,6 @@
 package com.zim.util;
 
-public class Const {
+public class CalcConstants {
     /**
      * Message key for when there are no available overloads for a function using the given data types.
      * Message parameters will be the function name, followed by a string containing a parenthesised comma-separated

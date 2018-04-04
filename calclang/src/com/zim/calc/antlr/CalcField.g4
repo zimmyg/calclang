@@ -1,5 +1,9 @@
 grammar CalcField;
 
+calculation
+    : expression EOF
+    ;
+
 expression
     : LPAREN expression RPAREN                                  #parenExpr
     | lhs=expression binaryOp rhs=expression                    #binaryOpExpr

@@ -3,11 +3,9 @@ package com.zim.calc.inmemory.function;
 import com.zim.calc.context.CalcException;
 import com.zim.calc.context.FieldDataType;
 import com.zim.calc.context.FunctionSignature;
-import com.zim.util.Const;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 

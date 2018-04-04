@@ -1,4 +1,4 @@
-// Generated from C:/Users/Tim/IdeaProjects/ANTLR Test/src/com/zim/antlr/grammar/calcfield\CalcField.g4 by ANTLR 4.7
+// Generated from C:/IJWorkspace/calclang/calclang/src/com/zim/calc/antlr\CalcField.g4 by ANTLR 4.7
 package com.zim.calc.antlr.generated;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -11,6 +11,18 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * of the available methods.
  */
 public class CalcFieldBaseListener implements CalcFieldListener {
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCalculation(CalcFieldParser.CalculationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCalculation(CalcFieldParser.CalculationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
