@@ -68,7 +68,7 @@ public abstract class CalcFieldExpressionBuilder  {
                 (lhsType == FieldDataType.NUMERIC && rhsType == FieldDataType.STRING));
     }
 
-    private String serializeDataTypesArray(FieldDataType[] types) {
+    protected String serializeDataTypesArray(FieldDataType[] types) {
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         if (types != null) {
