@@ -27,4 +27,10 @@ public class CalcConstants {
      * list of the input data types for which there is no available overload.
      */
     public static final String INVALID_IDENT_MSG = "zim.error.invalid.ident";
+
+    /**
+     * Message key for when there was some unknown error/exception.
+     * Message parameters will be the exception if there was one, or null otherwise.
+     */
+    public static final String UNKNOWN_ERROR_MSG = "zim.error.unknown";
 }

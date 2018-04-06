@@ -22,33 +22,46 @@ public abstract class CalcFieldExpressionBuilder  {
         this.calcContext = context;
     }
 
-    public Expression parseExpressionFromString(String inputCalcString) throws Exception {
+    public Expression parseExpressionFromString(String inputCalcString) throws CalcException {
         return parseExpressionFromAntlrStream(CharStreams.fromString(inputCalcString));
     }
 
-    public Expression parseExpressionFromStream(InputStream is) throws Exception {
-        return parseExpressionFromAntlrStream(CharStreams.fromStream(is));
+    public Expression parseExpressionFromStream(InputStream is) throws CalcException {
+        try {
+            return parseExpressionFromAntlrStream(CharStreams.fromStream(is));
+        } catch (Exception e) {
+            throw getUnknownErrorException(e);
+        }
     }
 
-    private Expression parseExpressionFromAntlrStream(CharStream antlrStream) throws Exception {
-        CalcFieldLexer lexer = new CalcFieldLexer(antlrStream);
-        lexer.removeErrorListeners();
-        lexer.addErrorListener(new ThrowErrorHandler());
+    private Expression parseExpressionFromAntlrStream(CharStream antlrStream) throws CalcException {
+        try {
+            CalcFieldLexer lexer = new CalcFieldLexer(antlrStream);
+            lexer.removeErrorListeners();
+            lexer.addErrorListener(new ThrowErrorHandler());
 
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-        CalcFieldParser parser = new CalcFieldParser(tokens);
-        parser.removeErrorListeners();
-        parser.addErrorListener(new ThrowErrorHandler());
+            CalcFieldParser parser = new CalcFieldParser(tokens);
+            parser.removeErrorListeners();
+            parser.addErrorListener(new ThrowErrorHandler());
 
-        CalcFieldParser.CalculationContext expression = parser.calculation();
-        CalcFieldExpressionVisitor exprVisitor = new CalcFieldExpressionVisitor();
-        Expression result = exprVisitor.visit(expression);
-        if (result == null && exprVisitor.getException() != null) {
-            throw exprVisitor.getException();
+            CalcFieldParser.CalculationContext expression = parser.calculation();
+            CalcFieldExpressionVisitor exprVisitor = new CalcFieldExpressionVisitor();
+            Expression result = exprVisitor.visit(expression);
+            if (result == null && exprVisitor.getException() != null) {
+                throw exprVisitor.getException();
+            }
+
+            return result;
+        } catch (ParseCancellationException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof CalcException) {
+                throw (CalcException)cause;
+            } else {
+                throw getUnknownErrorException(e);
+            }
         }
-
-        return result;
     }
 
     protected abstract FieldDataType validateExpression(BinaryOpExpression parsedExpression) throws CalcException;
@@ -82,6 +95,7 @@ public abstract class CalcFieldExpressionBuilder  {
         return sb.append(")").toString();
     }
 
+    // error exception 'callback' methods
     protected CalcException getNoOverloadException(String funcName, FieldDataType[] gotTypes) {
         String gotTypesStr = serializeDataTypesArray(gotTypes);
         return new CalcException(CalcConstants.NO_OVERLOADS_MSG, new Object[] { funcName, gotTypesStr });
@@ -98,6 +112,15 @@ public abstract class CalcFieldExpressionBuilder  {
     protected CalcException getSyntaxErrorException(int line, int charPositionInLine, String msg, Exception cause) {
         Object[] messageParams = new Object[] { line, charPositionInLine, msg };
         return new CalcException(CalcConstants.SYNTAX_ERROR_MSG, messageParams, cause);
+    }
+
+    protected CalcException getUnknownErrorException(Exception cause) {
+        Object[] messageParams = null;
+        if (cause != null) {
+            messageParams = new Object[] { cause };
+        }
+
+        return new CalcException(CalcConstants.UNKNOWN_ERROR_MSG, messageParams);
     }
 
     // have to define our own error handler which throws the errors as exceptions.
