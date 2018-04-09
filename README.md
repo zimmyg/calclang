@@ -10,4 +10,3 @@ This requires quite a bit more framework in terms of SQL generation, so it likel
 
 Other currently planned features include:
  - **Dependent fields execution:** Currently only one field at a time can be calculated and it wouldn't de difficult to allow calculating multiple fields, but that raises the problem of dependent fields. The executor needs to be able to handle dependency resolution of calc fields in order to execute them in dependency-order. Something else to note as a challenge for this item is the subsequent dataset positions of the calc fields.
- - **Function overloading:** Currently there is no support for overloading functions, which makes some things a bit jank. Ideally I would like functions to be written as plugins, so they will need a re-write anyway.
